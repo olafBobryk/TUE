@@ -1,6 +1,6 @@
 # TU/e Academic Writing
 
-An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.1.2** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
+An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.2.0** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
 
 **Independent adaptation by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -18,7 +18,7 @@ To install globally for Codex:
 npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global
 ```
 
-The skill uses the portable `SKILL.md` format and has no scripts, API keys, external services, or PDF dependency. Codex display metadata is included; other compatible agents can use the core instructions.
+The skill uses the portable `SKILL.md` format and has no executable helpers, API keys, or original-reader PDF dependency. Local LaTeX compilation requires a TeX compiler; the optional Overleaf workflow requires an authenticated project and an agent with browser control or a supported editing integration. The skill itself does not provide those tools. Codex display metadata is included; other compatible agents can use the core instructions.
 
 ## Use
 
@@ -41,17 +41,39 @@ Example requests:
 - Quotation formatting, paraphrasing, summarizing, source boundaries, tone and emphasis, note-taking advice, and citation styles.
 - All writing resources linked by the reader, identified as source-provided addresses rather than guaranteed current links.
 
-The agent reads `SKILL.md` and the [complete writing guide](references/writing-guidance.md). All writing guidance stays together; there are no separate per-workflow guides to choose between. Both files contain actionable instructions and examples, without source page numbers, figure labels, or adaptation commentary.
+The agent reads `SKILL.md` and the [complete writing guide](references/writing-guidance.md). All writing guidance stays together. The optional LaTeX and Overleaf references are loaded only for those tasks. Both files contain actionable instructions and examples, without source page numbers, figure labels, or adaptation commentary.
 
 Human-facing material stays here and in the [source coverage record](docs/source-coverage.md): attribution, installation instructions, provenance, source interpretation, and the mapping of every substantive source section, figure, footnote, and example lesson. These documents are outside the agent's required reading path.
 
 The skill follows the requested mode and assignment constraints. It flags evidence gaps rather than inventing sources or results, and it distinguishes reviewing citations from verifying the underlying sources. It does not certify grades, institutional approval, or submission readiness.
 
+## LaTeX templates and Overleaf
+
+Version **1.2.0** adds two independently authored, compilable starters:
+
+- [Academic essay](assets/templates/academic-essay/main.tex): single-column article with an argument/discussion structure.
+- [IEEE report](assets/templates/ieee-report/main.tex): two-column technical report using the standard `IEEEtran` class.
+
+Download an Overleaf-ready ZIP from [release 1.2.0](https://github.com/olafBobryk/TUE/releases/tag/v1.2.0), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root and the MIT license.
+
+Copy the whole chosen template folder, including `sections/body.tex` and `references.bib`. Both use pdfLaTeX and visibly mark unfinished content. Bibliographies start empty; enable the included BibTeX commands after adding verified sources. These are general starters, not official TU/e or publisher-approved templates. Use the assignment's own template when supplied.
+
+The [template guide](references/latex-templates.md) explains selection, filling fields, bibliography setup, compilation, and ZIP packaging. The [Overleaf workflow](references/overleaf-workflow.md) covers importing a project, preserving live collaborative changes, editing, checking compilation logs, inspecting the PDF, and iterating on concrete findings. A skill installation does not grant browser access or log in to Overleaf.
+
+Example requests:
+
+- “Use $tue-academic-writing to create a LaTeX essay from these notes and export an Overleaf-ready ZIP. Keep missing evidence marked.”
+- “Use $tue-academic-writing with this required course template. Preserve its layout and citation style.”
+- “Use $tue-academic-writing to revise the introduction in this Overleaf project, recompile, and inspect the PDF for layout problems.”
+- “Review this Overleaf report without changing its source.”
+
+The [validation record](docs/latex-validation.md) distinguishes local template builds from live Overleaf verification.
+
 ## Source and attribution
 
 Based on the TU/e Language and Writing Center's *Academic Writing Reader*, a 17-page reader supplied as university course material. The human-facing coverage record identifies the relevant page ranges and source interpretation notes. The source's recommendations remain the defaults, with explicit assignment or publication requirements taking precedence when they differ.
 
-The university PDF is not included. Instructions and examples in this repository are independently written; the skill works without access to the source document. MIT licensing applies to this repository's original content, not to the TU/e reader, name, or branding.
+The university PDF is not included. Instructions and examples in this repository are independently written; the skill works without access to the source document. MIT licensing applies to this repository's original content, not to the TU/e reader, name, or branding. The new LaTeX starters and workflow are independent additions, not guidance attributed to the reader. LaTeX packages such as `IEEEtran` remain separately licensed dependencies supplied by your TeX distribution; their source is not bundled here.
 
 ## Sharing and updates
 
@@ -69,7 +91,7 @@ To install or refresh just this skill globally for Codex:
 npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global --yes
 ```
 
-Both commands retrieve published repository content. Version `1.1.2` is recorded in the skill metadata; this revision publishes the skill from the `TUE` repository. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
+Both commands retrieve published repository content. Version `1.2.0` is recorded in the skill metadata; this revision adds LaTeX templates and an optional Overleaf workflow. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
 
 ## License
 

@@ -1,6 +1,6 @@
 interface:
   display_name: "TU/e Academic Writing"
-  short_description: "Draft, revise, and review academic writing"
+  short_description: "Academic writing, LaTeX templates, and Overleaf"
   default_prompt: "Use $tue-academic-writing to review this draft for argumentation, readability, academic style, and referencing."
 
 policy:

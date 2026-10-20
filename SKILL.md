@@ -4,10 +4,11 @@ description: >-
   Draft, revise, or review English academic writing with guidance on
   preparation, argumentation, paragraphs, cohesion,
   academic style, paraphrasing, and referencing. Use for academic essays, reports,
-  or explicit TU/e writing requests; respect grammar-only scope.
+  LaTeX templates, and Overleaf editing or compile-and-review workflows;
+  also use for explicit TU/e writing requests. Respect grammar-only scope.
 license: MIT
 metadata:
-  version: "1.1.2"
+  version: "1.2.0"
 ---
 
 # TU/e Academic Writing
@@ -17,6 +18,12 @@ Draft, revise, or review academic writing with clear argumentation, readable str
 ## Required reading
 
 **Read [the complete writing guidance](references/writing-guidance.md) before drafting, revising, or reviewing.** Read it for every mode, including a targeted pass. The requested task determines which instructions to apply; do not use this entrypoint's overview as a substitute for the full guide.
+
+## LaTeX and Overleaf
+
+- For LaTeX document creation or template adaptation, read [LaTeX templates](references/latex-templates.md). Copy the selected starter from `assets/templates/`; preserve any required assignment template instead when one is supplied.
+- For Overleaf creation, editing, compilation, or PDF iteration, read [the Overleaf workflow](references/overleaf-workflow.md). Use available supported tools and verify the live result.
+- Pure template setup or compilation does not require a prose review. Whenever drafting, revising, or reviewing prose, read the complete writing guide as above. Preserve review-only and grammar-only boundaries inside LaTeX and Overleaf too.
 
 ## Understand and preserve the requested task
 
