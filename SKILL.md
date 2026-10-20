@@ -1,45 +1,59 @@
 ---
 name: tue-academic-writing
-description: Draft, revise, or review English academic essays and reports using TU/e-informed guidance on argumentation, readability, academic style, and referencing. Use for academic writing assistance or explicit requests for TU/e writing guidance; keep grammar-only edits within their requested scope.
+description: >-
+  Draft, revise, or review English academic writing using the complete guidance of
+  TU/e's Academic Writing Reader: preparation, argumentation, paragraphs, cohesion,
+  academic style, paraphrasing, and referencing. Use for academic essays, reports,
+  or explicit TU/e writing requests; respect grammar-only scope.
 license: MIT
+metadata:
+  version: "1.1.0"
 ---
 
 # TU/e Academic Writing
 
-Help the writer communicate a defensible argument clearly. This is an independent adaptation of the TU/e Language and Writing Center's *Academic Writing Reader*, not an official university skill. The source PDF is not required to use this skill.
+Apply the writing guidance of the TU/e Language and Writing Center's 17-page *Academic Writing Reader*. This independent adaptation includes every writing-related instruction and the lessons in its diagrams, examples, footnote, and resource recommendations. It is not an official TU/e product. The original PDF is not required.
 
-## Establish the writing task
+## Required reading
 
-Use the user's request and supplied assignment to establish the audience, purpose, main message, deliverable, and constraints. Ask only for information that materially affects the work and cannot be inferred from the supplied material. Assignment rules, requested scope, and relevant discipline conventions govern how this general guidance is applied.
+**Read [the complete writing guidance](references/writing-guidance.md) before drafting, revising, or reviewing.** This entrypoint explains how to use the skill; it is not a substitute for the reader's guidance. Do not act from the topic list or a condensed summary alone. The complete guide is mandatory for every mode, including a targeted pass; the requested task determines which guidance to apply, not whether to read it.
 
-Choose the requested mode:
+The [source coverage record](references/source-coverage.md) maps every substantive source section, diagram, footnote, and example lesson to the guide. Use it when auditing or maintaining completeness; ordinary writing tasks do not require reading this maintenance record.
 
-- **Draft:** organize the supplied ideas and evidence into an argument, then write the requested passage or document. If essential material is missing, ask for it or provide an explicitly provisional outline with clearly marked gaps.
-- **Revise:** edit the designated text while preserving its intended meaning, technical details, qualifications, and source attribution. Reorganize only within the authorized scope; flag substantive uncertainties instead of silently deciding them.
-- **Review:** give actionable feedback with passage locations, the problem, and a concrete remedy. Prioritize argument and evidence before flow and style. Do not replace the draft unless asked; short illustrative edits may clarify feedback.
+## Understand and preserve the requested task
 
-For a grammar-only request, correct language and local clarity without restructuring the argument, adding claims, or dropping details. If a grammar-pass skill is available, respect its editing boundaries; this skill does not depend on it.
+Establish the audience, purpose, main message, deliverable, available evidence, and assignment constraints from the supplied material. Ask only about material ambiguities that the material cannot resolve. Apply the source's recommendations as defaults, retain its explicit qualifications, and follow a conflicting user, assignment, or publication requirement. Do not silently replace TU/e's specific advice with generic stylistic preferences.
 
-## Apply the writing framework
+- **Draft:** work through preparation, drafting, and evaluation. Establish the main argument, inventory supporting material, identify missing sources, and develop each supporting argument through claim, evidence, and reasoning. Produce the requested text; mark unresolved gaps clearly rather than making up information.
+- **Revise:** examine purpose and argument, paragraph structure, cohesion, style, and source fidelity within the authorized scope. Change the designated text while preserving intended meaning, technical details, qualifications, and attribution. Revisit preparation when the evidence or argument is incomplete.
+- **Review:** examine those same aspects and provide passage-specific findings explaining the issue, its consequence for the reader, and a concrete remedy. Do not rewrite the whole draft unless requested; brief illustrative edits can explain a finding.
+- **Grammar-only:** apply local grammar, word-usage, and clarity corrections without restructuring the argument, adding claims, or dropping details. Do not apply the whole-document guidance as permission to broaden the edit. Respect an available grammar-pass skill's boundaries; this skill has no dependency on it.
 
-Writing is iterative: preparing ideas, drafting, and evaluating may lead back to one another. Use the checks needed for the task rather than forcing every task through a visible checklist.
+## Apply the full guidance in a sensible order
 
-1. **Argumentation:** establish a main argument appropriate to the task. For each supporting argument, connect a claim to relevant, reliable evidence and explain how far that evidence supports the claim. Do not assume evidence explains itself. Remove or flag digressions only within the requested editing scope.
-2. **Paragraphs:** normally develop one supporting argument per body paragraph, with an opening topic sentence, supporting evidence and reasoning, and an appropriate conclusion or transition. Treat this as a useful model, not a compulsory template for introductions, methods, or every paragraph.
-3. **Readability:** make relationships explicit, connect familiar information to new information, give demonstratives clear referents, and keep technical terms consistent. Distinguish a missing transition from a missing explanation; a linking word cannot supply absent reasoning.
-4. **Academic style:** prefer precise, concise, appropriately formal wording. Match the strength of the language to the evidence. Apply field-specific conventions, including whether authorial “we” is appropriate, rather than imposing universal pronoun or sentence-opening bans.
-5. **Referencing:** distinguish the writer's contribution from borrowed ideas. Preserve source meaning, emphasis, and uncertainty when paraphrasing or summarizing, and use the required citation style consistently.
+Use the guide's numbered sections directly:
 
-Read [the detailed review guidance](references/writing-guidance.md) when conducting a full review, diagnosing a specific writing problem, or checking a reader-specific recommendation. It includes source page references and original examples.
+1. **Purpose and preparation (§§1–4):** establish the intended contribution, organize ideas and relationships, inventory the evidence, search for missing sources within the authorized scope, and select relevant material. Include necessary explanation; exclude distracting irrelevance when editing scope permits.
+2. **Argument and paragraphs (§§5–6):** connect each arguable supporting claim to relevant, reliable, accurately represented evidence and explicit reasoning. Use the reader's standard paragraph structure where it applies, including the distinct functions of concluding and transitioning sentences.
+3. **Reader comprehension (§§7–12):** signal actual relationships, put familiar information before new information, pair demonstratives with summary words, and repeat key terms. Diagnose whether a gap needs a connector or substantive missing information.
+4. **Style (§§13–14):** apply every listed convention, not merely “be formal and concise.” Retain the reader's discipline-specific exception for researcher “we” and its direction to learn from writing in the field.
+5. **Sources (§§15–18):** attribute borrowed material, format quotation appropriately, distinguish paraphrase from summary, preserve source meaning and emphasis, avoid synonym-only copying, and use a consistent referencing style. Consult the included resources when the task calls for them.
 
-## Evidence and scope boundaries
+Return to earlier stages when later checks expose a missing idea, source, or explanation. Use external-reader or peer feedback when available; do not claim another reader has reviewed the text unless that happened. These are working steps, not mandatory headings or a checklist to paste into every response.
 
-- Never invent results, quotations, sources, bibliographic details, or a causal explanation to complete an argument. Identify missing evidence explicitly. New explanatory suggestions must be grounded in supplied or verified material, or clearly presented as proposals requiring confirmation.
-- If only a draft or citation list is available, assess how sources are used in the text, but do not claim to have verified their content. Read the underlying source before asserting that it supports a claim. Research beyond supplied material only when requested or needed within the authorized task.
-- Do not turn a cautious finding into a general conclusion, correlation into causation, or a limited example into universal evidence.
-- Proper paraphrasing changes the expression and structure while faithfully retaining meaning and attribution; substituting synonyms alone is insufficient.
-- Preserve existing formulas, identifiers, references, and technical distinctions unless the user requests a substantive correction or the supplied evidence clearly establishes one.
+## Agent operating rules
 
-## Deliver the requested result
+The following implementation rules support the writing guidance; they are not additional claims about TU/e policy.
 
-Return the draft, revision, or review in the requested format. Separate unresolved evidence gaps and substantive questions from the finished prose. For reviews, make recommendations proportionate to their impact and avoid padding the response with a checklist of things already done well. Do not claim a grade, institutional approval, citation verification, or submission readiness that has not been established.
+- Never invent findings, source details, quotations, measurements, or causal explanations. Distinguish a supported inference from a proposed interpretation requiring confirmation.
+- Read an underlying source before asserting that it supports a claim. With only a draft or bibliography, assess citation use but do not claim source-content verification. Clearly identify what remains unverified.
+- Use the guide's examples for their writing lessons only. Their hypothetical facts and citations must never become evidence in a user's document.
+- Preserve formulas, identifiers, and technical distinctions unless substantive correction is authorized and supported. Do not make a claim more certain or broader than its evidence.
+- Do not adopt an illustrative percentage as a universal grading rule or present a reader-specific convention as a universal grammatical law. Preserve the exact level of authority the guide assigns to it.
+- An external-resource link is a starting point, not proof that its contents or address are current. Check it before relying on current style details.
+
+## Deliver and verify
+
+Return the requested draft, revision, or review in its requested format. Keep unresolved evidence gaps and substantive questions distinct from finished prose. In revisions, compare against the original to check that concrete details, uncertainty, and attribution were preserved. In reviews, prioritize argument and missing evidence before local polish, and describe actual issues rather than returning generic advice.
+
+Do not certify grades, institutional approval, source verification, or readiness for submission beyond what has actually been established.
