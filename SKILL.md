@@ -7,7 +7,7 @@ description: >-
   or explicit TU/e writing requests; respect grammar-only scope.
 license: MIT
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # TU/e Academic Writing

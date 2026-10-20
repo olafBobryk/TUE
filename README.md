@@ -1,6 +1,6 @@
 # TU/e Academic Writing
 
-An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.1.1** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
+An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.1.2** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
 
 **Independent adaptation by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -9,13 +9,13 @@ An agent skill for drafting, revising, and reviewing English academic essays and
 Install with the [skills CLI](https://github.com/vercel-labs/skills), then choose your agent:
 
 ```sh
-npx skills add olafBobryk/tue-academic-writing
+npx skills add olafBobryk/TUE
 ```
 
 To install globally for Codex:
 
 ```sh
-npx skills add olafBobryk/tue-academic-writing --skill tue-academic-writing --agent codex --global
+npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global
 ```
 
 The skill uses the portable `SKILL.md` format and has no scripts, API keys, external services, or PDF dependency. Codex display metadata is included; other compatible agents can use the core instructions.
@@ -66,10 +66,10 @@ npx skills update
 To install or refresh just this skill globally for Codex:
 
 ```sh
-npx skills add olafBobryk/tue-academic-writing --skill tue-academic-writing --agent codex --global --yes
+npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global --yes
 ```
 
-Both commands retrieve published repository content. Version `1.1.1` is recorded in the skill metadata; this revision separates direct agent instructions from human-facing provenance while retaining the complete writing guidance introduced in version 1.1.0. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
+Both commands retrieve published repository content. Version `1.1.2` is recorded in the skill metadata; this revision publishes the skill from the `TUE` repository. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
 
 ## License
 
