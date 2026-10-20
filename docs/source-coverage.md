@@ -1,6 +1,6 @@
 # Source coverage record
 
-Source: TU/e Language and Writing Center, *Academic Writing Reader*, 17 pages. This record maps writing instructions to the numbered sections in [the complete guide](writing-guidance.md). It is a maintenance record, not an additional writing rubric.
+Source: TU/e Language and Writing Center, *Academic Writing Reader*, 17 pages. This record maps writing instructions to the numbered sections in [the complete guide](../references/writing-guidance.md). This document is for human review and skill maintenance; it is outside the agent's required reading path.
 
 Coverage was checked against the text of pages 3–17 and the rendered figures on pages 3–6. The initial version's broad summaries have been replaced by an instruction-level transfer. Source examples are represented by their writing lessons and original examples, not copied subject-matter claims.
 
@@ -56,11 +56,21 @@ Coverage was checked against the text of pages 3–17 and the rendered figures o
 | Summary, p. 15 | Main message only, much shorter, independent wording/structure, still attributed | §16 |
 | Example A, p. 15 | Synonym-only substitution is insufficient even in a short sentence | §16 |
 | Example B, pp. 15–16 | Source boundaries clear at beginning/end; independent language; retain detail in paraphrase, main message in summary; missing citation and close copying are separate defects | §16 |
-| Advice inside Example B, p. 15 | Limit verbatim note-taking to avoid excessive later quotation; contextualize illustrative 10% remark without inventing a university-wide rule | §16 |
+| Advice inside Example B, p. 15 | Limit verbatim note-taking to avoid excessive later quotation; do not impose a numerical quotation limit without an assignment/publication requirement | §16; interpretation note below |
 | Example C, p. 16 | Preserve tone/emphasis as well as meaning; fluent independent wording can still exaggerate/misrepresent | §16 |
 | Referencing styles, p. 16 | Discipline/assignment-appropriate APA/MLA/IEEE/Chicago or other style, consistent use; consult guides | §17 |
 | Embedded links, pp. 10, 14, 16 | Retain transition, old-to-new, vocabulary, phrase-bank, and four citation-guide pointers | §18 |
 | Useful links, p. 17 | Retain all four writing-center resources, linking words, academic word list, phrase bank | §18 |
+
+## Interpretation and packaging notes
+
+- Attribution belongs in the README and this record. The running skill and complete guide contain direct writing instructions, examples, and useful writing-resource links, without original page, figure, or example labels.
+- The original PDF has no established publication date in the supplied copy. Page numbers in this record refer to its printed numbering.
+- Figures, example labels, footnotes, and page references describe provenance; their writing lessons are retained in the guide without making the agent read about how they were transferred.
+- The source passage used in the reader's paraphrasing example mentions roughly 10% directly quoted material as a desirable ceiling in that passage's discussion. It is not established as a general TU/e grading requirement. The guide retains the actionable advice to limit verbatim note-taking and quotation, and to apply a numerical limit only when required by the assignment or publication.
+- Resource URLs are the addresses supplied by the reader, not a guarantee that every address remains current. The guide tells the agent to verify resources when consulting them.
+- Independently written examples preserve the source's teaching distinctions. Their hypothetical facts and citations are not evidence for use in actual academic work.
+- Additional agent operating rules preserve requested task scope, prevent fabricated evidence, distinguish source verification from citation review, and prevent unsupported approval claims. They are implementation rules, not purported university policy.
 
 ## Exclusions
 

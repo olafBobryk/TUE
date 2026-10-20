@@ -1,6 +1,6 @@
 # TU/e Academic Writing
 
-An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.1.0** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
+An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.1.1** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
 
 **Independent adaptation by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -41,13 +41,15 @@ Example requests:
 - Quotation formatting, paraphrasing, summarizing, source boundaries, tone and emphasis, note-taking advice, and citation styles.
 - All writing resources linked by the reader, identified as source-provided addresses rather than guaranteed current links.
 
-The [complete writing guide](references/writing-guidance.md) is required reading whenever the skill runs. The short `SKILL.md` entrypoint routes the agent into that guide; it does not replace the guide with a summary. The [source coverage record](references/source-coverage.md) maps each substantive source section, figure, footnote, and example lesson to its destination.
+The agent reads `SKILL.md` and the [complete writing guide](references/writing-guidance.md). All writing guidance stays together; there are no separate per-workflow guides to choose between. Both files contain actionable instructions and examples, without source page numbers, figure labels, or adaptation commentary.
+
+Human-facing material stays here and in the [source coverage record](docs/source-coverage.md): attribution, installation instructions, provenance, source interpretation, and the mapping of every substantive source section, figure, footnote, and example lesson. These documents are outside the agent's required reading path.
 
 The skill follows the requested mode and assignment constraints. It flags evidence gaps rather than inventing sources or results, and it distinguishes reviewing citations from verifying the underlying sources. It does not certify grades, institutional approval, or submission readiness.
 
 ## Source and attribution
 
-Based on the TU/e Language and Writing Center's *Academic Writing Reader*, a 17-page reader supplied as university course material. The complete guide identifies the relevant page ranges. The source's recommendations remain the defaults, with explicit assignment or publication requirements taking precedence when they differ.
+Based on the TU/e Language and Writing Center's *Academic Writing Reader*, a 17-page reader supplied as university course material. The human-facing coverage record identifies the relevant page ranges and source interpretation notes. The source's recommendations remain the defaults, with explicit assignment or publication requirements taking precedence when they differ.
 
 The university PDF is not included. Instructions and examples in this repository are independently written; the skill works without access to the source document. MIT licensing applies to this repository's original content, not to the TU/e reader, name, or branding.
 
@@ -67,7 +69,7 @@ To install or refresh just this skill globally for Codex:
 npx skills add olafBobryk/tue-academic-writing --skill tue-academic-writing --agent codex --global --yes
 ```
 
-Both commands retrieve published repository content. Version `1.1.0` is recorded in the skill metadata; this revision replaces the earlier condensed guide with complete writing-guidance coverage. A fresh or refreshed installation should include `references/writing-guidance.md` and `references/source-coverage.md` alongside `SKILL.md`.
+Both commands retrieve published repository content. Version `1.1.1` is recorded in the skill metadata; this revision separates direct agent instructions from human-facing provenance while retaining the complete writing guidance introduced in version 1.1.0. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
 
 ## License
 
