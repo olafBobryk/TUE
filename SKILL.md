@@ -8,7 +8,7 @@ description: >-
   also use for explicit TU/e writing requests. Respect grammar-only scope.
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # TU/e Academic Writing
@@ -21,7 +21,7 @@ Draft, revise, or review academic writing with clear argumentation, readable str
 
 ## LaTeX and Overleaf
 
-- For LaTeX document creation or template adaptation, read [LaTeX templates](references/latex-templates.md). Copy the selected starter from `assets/templates/`; preserve any required assignment template instead when one is supplied.
+- For LaTeX document creation or template adaptation, read [LaTeX templates](references/latex-templates.md). For a new LaTeX document with no other requested format, default to the school-supplied two-column starter at `assets/templates/tue-school-essay/`. Preserve an existing project or a different required assignment template; use the other bundled starters only when requested or needed by the specified format.
 - For Overleaf creation, editing, compilation, or PDF iteration, read [the Overleaf workflow](references/overleaf-workflow.md). Use available supported tools and verify the live result.
 - Pure template setup or compilation does not require a prose review. Whenever drafting, revising, or reviewing prose, read the complete writing guide as above. Preserve review-only and grammar-only boundaries inside LaTeX and Overleaf too.
 

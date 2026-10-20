@@ -1,6 +1,6 @@
 # TU/e Academic Writing
 
-An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.2.0** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
+An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.2.1** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
 
 **Independent adaptation by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -49,14 +49,15 @@ The skill follows the requested mode and assignment constraints. It flags eviden
 
 ## LaTeX templates and Overleaf
 
-Version **1.2.0** adds two independently authored, compilable starters:
+Version **1.2.1** makes the school-supplied **two-column essay template the default** for new LaTeX documents. A different requested or required format still takes precedence. The bundle includes:
 
+- [TU/e school essay — default](assets/templates/tue-school-essay/main.tex): the supplied source, with its paper subtitle, three author blocks, abstract/section instructions, and inline bibliography. Only the filename is changed. Replace its sample references and unused author fields before use.
 - [Academic essay](assets/templates/academic-essay/main.tex): single-column article with an argument/discussion structure.
 - [IEEE report](assets/templates/ieee-report/main.tex): two-column technical report using the standard `IEEEtran` class.
 
-Download an Overleaf-ready ZIP from [release 1.2.0](https://github.com/olafBobryk/TUE/releases/tag/v1.2.0), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root and the MIT license.
+Download an Overleaf-ready ZIP from [release 1.2.1](https://github.com/olafBobryk/TUE/releases/tag/v1.2.1), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root. The school starter includes its attribution notice; the independently authored starters include the MIT license.
 
-Copy the whole chosen template folder, including `sections/body.tex` and `references.bib`. Both use pdfLaTeX and visibly mark unfinished content. Bibliographies start empty; enable the included BibTeX commands after adding verified sources. These are general starters, not official TU/e or publisher-approved templates. Use the assignment's own template when supplied.
+Copy the whole chosen template folder. All three use pdfLaTeX. The school starter keeps sections and bibliography inline in `main.tex`; its sample references are demonstrations, not evidence. The two independent alternatives have `sections/body.tex` and an empty `references.bib`. The school source is attributed in its [notice](assets/templates/tue-school-essay/NOTICE.md); the other starters are general alternatives, not official TU/e or publisher-approved templates. Use the current assignment’s own template when supplied.
 
 The [template guide](references/latex-templates.md) explains selection, filling fields, bibliography setup, compilation, and ZIP packaging. The [Overleaf workflow](references/overleaf-workflow.md) covers importing a project, preserving live collaborative changes, editing, checking compilation logs, inspecting the PDF, and iterating on concrete findings. A skill installation does not grant browser access or log in to Overleaf.
 
@@ -73,7 +74,7 @@ The [validation record](docs/latex-validation.md) distinguishes local template b
 
 Based on the TU/e Language and Writing Center's *Academic Writing Reader*, a 17-page reader supplied as university course material. The human-facing coverage record identifies the relevant page ranges and source interpretation notes. The source's recommendations remain the defaults, with explicit assignment or publication requirements taking precedence when they differ.
 
-The university PDF is not included. Instructions and examples in this repository are independently written; the skill works without access to the source document. MIT licensing applies to this repository's original content, not to the TU/e reader, name, or branding. The new LaTeX starters and workflow are independent additions, not guidance attributed to the reader. LaTeX packages such as `IEEEtran` remain separately licensed dependencies supplied by your TeX distribution; their source is not bundled here.
+The university PDF is not included. The writing instructions and examples are independently written; the skill works without access to the source reader. The school LaTeX template is the separately attributed exception described below. MIT licensing applies to this repository's original content, not to the TU/e reader, name, or branding. The two generic LaTeX starters and workflow are independent additions, not guidance attributed to the reader. The school starter preserves separately attributed course-supplied source; it is not covered by this repository’s MIT license. LaTeX packages such as `IEEEtran` remain separately licensed dependencies supplied by your TeX distribution; their source is not bundled here.
 
 ## Sharing and updates
 
@@ -91,8 +92,8 @@ To install or refresh just this skill globally for Codex:
 npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global --yes
 ```
 
-Both commands retrieve published repository content. Version `1.2.0` is recorded in the skill metadata; this revision adds LaTeX templates and an optional Overleaf workflow. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
+Both commands retrieve published repository content. Version `1.2.1` is recorded in the skill metadata; this revision adds the school-supplied essay starter and makes its two-column layout the default. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
 
 ## License
 
-[MIT](LICENSE), copyright 2026 Olaf Bobryk.
+Original repository content: [MIT](LICENSE), copyright 2026 Olaf Bobryk. The school-supplied template is excluded; see its [notice](assets/templates/tue-school-essay/NOTICE.md).

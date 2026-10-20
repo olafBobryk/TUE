@@ -47,3 +47,11 @@ Overleaf documentation used when preparing the workflow:
 - [History and versioning](https://docs.overleaf.com/writing-and-editing/history-and-versioning)
 
 UI wording can change. The agent-facing workflow intentionally uses observed controls and outcomes rather than fixed coordinates or stored element identifiers.
+
+## Version 1.2.1 — school starter
+
+The school-supplied `essay_template_latex.tex` is included as `assets/templates/tue-school-essay/main.tex`. Byte comparison against the supplied archive confirms that only the filename changed. Its sample bibliography and course instructions are retained as source content; the template guide instructs agents to replace the examples, preserve actual authorship, and apply course-specific requirements only in their relevant assignment.
+
+The default routing now selects this two-column starter for a new LaTeX document with no other requested or required format. Existing documents and explicit assignment templates take precedence. The core writing guide is unchanged. The school starter has a separate attribution notice and is excluded from the MIT licensing claim for original repository content.
+
+Validation for the added school starter: the desktop editor compiler returned success. A supplemental Tectonic build produced a one-page PDF, which was visually inspected for the expected two columns, three author blocks, subtitle, section prompts, and bibliography. Tectonic reported font substitution warnings and an encoding warning in its `algorithmic.sty` dependency, so this supplemental render is not a claim of exact pdfLaTeX typography. The new school starter was not uploaded to Overleaf during this revision; the earlier live tests above cover the two independent starters only.
