@@ -1,0 +1,7 @@
+interface:
+  display_name: "TU/e Academic Writing"
+  short_description: "Draft, revise, and review academic writing"
+  default_prompt: "Use $tue-academic-writing to review this draft for argumentation, readability, academic style, and referencing."
+
+policy:
+  allow_implicit_invocation: true
