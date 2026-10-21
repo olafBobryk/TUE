@@ -36,7 +36,7 @@ The [course layout](references/course-layout.md) documents the folder structure,
 
 ## Validation
 
-The organizer script was tested on synthetic Canvas data covering a first setup, a refresh with changed and new files, an existing hand-written `COURSE.md`, duplicate file names, locked files, and incomplete downloads. The browser scripts have not yet been run against a live Canvas course.
+Tested live on 21 October 2026 on a real TU/e course that has no modules and links everything from a wiki home page: the collector followed the front page to 5 course pages and found all 28 linked files, matching an earlier hand-made capture, plus 8 announcements and 9 assignments. The 22 documents downloaded through the browser were filed byte-identical to that capture, except three lecture slide sets that Canvas had updated since; a second run as a refresh recognized all 22 as already present. Snapshot pages link to the local files and to each other, and no Canvas access tokens were saved. The organizer is also tested on synthetic data covering modules, changed and duplicate files, locked files, an existing hand-written `COURSE.md`, and incomplete downloads.
 
 ## License
 

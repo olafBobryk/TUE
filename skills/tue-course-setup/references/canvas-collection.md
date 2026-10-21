@@ -158,7 +158,7 @@ To propose the folder mapping, list modules (`window._tue.manifest.modules.map(m
 
 ## 3. Check that downloads reach the disk
 
-Save the manifest first, then look for `<CODE>__manifest.json` in the download folder. If it is not there after a few seconds, this browser does not save downloads (some built-in preview browsers drop them silently): stop and switch browsers before downloading files.
+Save the manifest first, then look for `<CODE>__manifest.json` in the download folder. If it is not there after a few seconds, ask the student whether their browser is waiting for them to approve the download. Some built-in browsers ask for approval per download; continue only once downloads reach the disk.
 
 ```js
 (() => {
@@ -182,7 +182,7 @@ Set `window._tueSkip = new Set([...ids])` to the ids the mapping skips (on a ref
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 120000);
+    setTimeout(() => URL.revokeObjectURL(a.href), 30 * 60000);  // keep for late approval prompts
   };
   T.dl = {status: 'running', done: 0, skipped: 0, err: []};
   for (const f of T.files) {

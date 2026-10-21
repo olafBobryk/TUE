@@ -18,7 +18,7 @@ import shutil
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 CANVAS = "https://canvas.tue.nl"
 SYNC_START, SYNC_END = "<!-- canvas-sync:start -->", "<!-- canvas-sync:end -->"
@@ -69,20 +69,28 @@ def fmt_date(value):
 class Markdown(HTMLParser):
     """Small, forgiving HTML→Markdown converter for Canvas rich text."""
 
-    BLOCK = {"p", "div", "section", "article", "header", "footer", "figure", "h1", "h2", "h3", "h4", "h5", "h6",
-             "ul", "ol", "table", "tr", "pre", "blockquote", "hr", "br", "li"}
-
     def __init__(self, link):
         super().__init__(convert_charrefs=True)
         self.link = link
-        self.out, self.lists, self.href, self.skip = [], [], [], 0
-        self.pre, self.cells, self.row, self.table_rows = 0, None, None, 0
+        self.stack = [[]]  # output buffers; a table cell writes into its own buffer
+        self.lists, self.href, self.tables = [], [], []
+        self.skip = self.pre = 0
+
+    @property
+    def buf(self):
+        return self.stack[-1]
+
+    def in_cell(self):
+        return len(self.stack) > 1
 
     def nl(self, n=1):
-        text = "".join(self.out)
+        if self.in_cell():
+            self.buf.append(" ")
+            return
+        text = "".join(self.buf)
         have = len(text) - len(text.rstrip("\n"))
         if text and have < n:
-            self.out.append("\n" * (n - have))
+            self.buf.append("\n" * (n - have))
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -90,14 +98,15 @@ class Markdown(HTMLParser):
             self.skip += 1
         elif tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.nl(2)
-            self.out.append("#" * min(int(tag[1]) + 1, 6) + " ")
+            if not self.in_cell():
+                self.buf.append("#" * min(int(tag[1]) + 1, 6) + " ")
         elif tag in ("p", "div", "section", "blockquote", "figure"):
             self.nl(2)
         elif tag == "br":
-            self.out.append("  \n")
+            self.buf.append(" " if self.in_cell() else "  \n")
         elif tag == "hr":
             self.nl(2)
-            self.out.append("---")
+            self.buf.append("---")
             self.nl(2)
         elif tag in ("ul", "ol"):
             self.nl(1 if self.lists else 2)
@@ -107,33 +116,33 @@ class Markdown(HTMLParser):
             depth = max(len(self.lists) - 1, 0)
             kind = self.lists[-1] if self.lists else ["ul", 0]
             kind[1] += 1
-            self.out.append("  " * depth + (f"{kind[1]}. " if kind[0] == "ol" else "- "))
+            marker = f"{kind[1]}. " if kind[0] == "ol" else "- "
+            self.buf.append(marker if self.in_cell() else "  " * depth + marker)
         elif tag in ("strong", "b"):
-            self.out.append("**")
+            self.buf.append("**")
         elif tag in ("em", "i"):
-            self.out.append("*")
+            self.buf.append("*")
         elif tag == "code" and not self.pre:
-            self.out.append("`")
+            self.buf.append("`")
         elif tag == "pre":
             self.nl(2)
-            self.out.append("```\n")
+            self.buf.append("```\n")
             self.pre += 1
         elif tag == "a":
             self.href.append(self.link(a.get("href") or ""))
-            self.out.append("[")
+            self.buf.append("[")
         elif tag == "img":
-            self.out.append(f"![{a.get('alt') or 'image'}]({self.link(a.get('src') or '')})")
+            self.buf.append(f"![{a.get('alt') or 'image'}]({self.link(a.get('src') or '')})")
         elif tag == "iframe":
             self.nl(2)
-            self.out.append(f"[Embedded content]({self.link(a.get('src') or '')})")
+            self.buf.append(f"[Embedded content]({self.link(a.get('src') or '')})")
             self.nl(2)
         elif tag == "table":
-            self.nl(2)
-            self.table_rows = 0
-        elif tag == "tr":
-            self.row = []
-        elif tag in ("td", "th"):
-            self.cells = []
+            self.tables.append({"rows": [], "row": None})
+        elif tag == "tr" and self.tables:
+            self.tables[-1]["row"] = []
+        elif tag in ("td", "th") and self.tables:
+            self.stack.append([])
 
     def handle_endtag(self, tag):
         if tag in ("script", "style"):
@@ -145,44 +154,65 @@ class Markdown(HTMLParser):
                 self.lists.pop()
             self.nl(2 if not self.lists else 1)
         elif tag in ("strong", "b"):
-            self.out.append("**")
+            self.buf.append("**")
         elif tag in ("em", "i"):
-            self.out.append("*")
+            self.buf.append("*")
         elif tag == "code" and not self.pre:
-            self.out.append("`")
+            self.buf.append("`")
         elif tag == "pre":
             self.nl()
-            self.out.append("```")
+            self.buf.append("```")
             self.nl(2)
             self.pre = max(self.pre - 1, 0)
         elif tag == "a":
             href = self.href.pop() if self.href else ""
-            self.out.append(f"]({href})" if href else "]")
-        elif tag in ("td", "th") and self.cells is not None and self.row is not None:
-            self.row.append(" ".join("".join(self.cells).split()).replace("|", "\\|"))
-            self.cells = None
-        elif tag == "tr" and self.row is not None:
-            self.nl()
-            self.out.append("| " + " | ".join(self.row) + " |")
-            if self.table_rows == 0:
-                self.out.append("\n|" + " --- |" * len(self.row))
-            self.table_rows += 1
-            self.nl()
-            self.row = None
+            self.buf.append(f"]({href})" if href else "]")
+        elif tag in ("td", "th") and self.in_cell():
+            text = "".join(self.stack.pop())
+            text = re.sub(r"\*\*\s*\*\*", "", text)
+            text = " ".join(text.split()).replace("|", "\\|")
+            table = self.tables[-1] if self.tables else None
+            if table is not None:
+                if table["row"] is None:
+                    table["row"] = []
+                table["row"].append(text)
+        elif tag == "tr" and self.tables:
+            table = self.tables[-1]
+            if table["row"] is not None:
+                table["rows"].append(table["row"])
+            table["row"] = None
+        elif tag == "table" and self.tables:
+            self.render_table(self.tables.pop())
+
+    def render_table(self, table):
+        rows = [r for r in table["rows"] if any(c.strip() for c in r)]
+        if not rows:
+            return
+        width = max(len(r) for r in rows)
+        rows = [r + [""] * (width - len(r)) for r in rows]
+        if self.in_cell():
+            self.buf.append(" " + "; ".join(" / ".join(c for c in r if c) for r in rows) + " ")
+            return
+        lines = ["| " + " | ".join(rows[0]) + " |", "|" + " --- |" * width]
+        lines += ["| " + " | ".join(r) + " |" for r in rows[1:]]
+        self.nl(2)
+        self.buf.append("\n".join(lines))
+        self.nl(2)
 
     def handle_data(self, data):
         if self.skip:
             return
-        if self.cells is not None:
-            self.cells.append(data)
-        elif self.pre:
-            self.out.append(data)
-        else:
-            self.out.append(re.sub(r"\s+", " ", data))
+        self.buf.append(data if self.pre else re.sub(r"\s+", " ", data))
 
     def text(self):
-        text = "".join(self.out)
+        while self.in_cell():  # unclosed cells in malformed HTML
+            self.stack[-2].extend(self.stack.pop())
+        text = "".join(self.buf)
+        text = re.sub(r"\*\*\s*\*\*", "", text)
+        text = re.sub(r"\[\s*\]\([^)]*\)", "", text)
         text = re.sub(r"[ \t]+\n", "\n", text)
+        # Drop stray leading spaces, but keep nested list indentation.
+        text = "\n".join(l if re.match(r" {2,}(- |\d+\. )", l) else l.lstrip() for l in text.split("\n"))
         text = re.sub(r"\n{3,}", "\n\n", text)
         return text.strip() + "\n"
 
@@ -302,6 +332,11 @@ class Organizer:
             if parts.scheme in ("mailto", "tel") or href.startswith("#"):
                 return href
             path = parts.path
+            page = re.search(r"/courses/\d+/pages/([^/?#]+)", path)
+            if page and getattr(self, "snap", None) is not None:
+                local = self.page_files.get(unquote(page.group(1)))
+                if local is not None:
+                    return md_link_path(rel(self.snap / local, from_dir))
             m = re.search(r"/courses/\d+/files/(\d+)", path)
             if m:
                 local = self.filed.get(int(m.group(1)))
@@ -335,7 +370,7 @@ class Organizer:
 
     def write_snapshot(self):
         m, snap = self.manifest, self.snapshot_dir()
-        self.snap = snap
+        self.snap, self.page_files = snap, {}
         title = f"{m['course']['name']}"
         unique = {}
 
@@ -348,8 +383,10 @@ class Organizer:
 
         page_links = {}
         for p in m.get("pages", []):
-            name = unique_name("pages", slug(p["title"] or p["url"])) + ".md"
-            page_links[p["url"]] = f"pages/{name}"
+            page_links[p["url"]] = "pages/" + unique_name("pages", slug(p["title"] or p["url"])) + ".md"
+        self.page_files = page_links
+        for p in m.get("pages", []):
+            name = page_links[p["url"]][len("pages/"):]
             head = f"# {p['title']}\n\nCanvas: {p.get('html_url') or ''}  \nUpdated: {fmt_date(p.get('updated_at'))}\n\n"
             self.write(snap / "pages" / name, head + self.md(p.get("body"), snap / "pages"))
 
@@ -478,12 +515,14 @@ class Organizer:
         term = c.get("term") or {}
         start, end = c.get("start_at") or term.get("start_at"), c.get("end_at") or term.get("end_at")
         run = ", ".join(x for x in (term.get("name"), f"{fmt_date(start)} to {fmt_date(end)}" if start or end else None) if x)
-        total = sum(f.get("size") or 0 for f in m.get("files", []) if not f.get("locked"))
+        kept = [f for f in m.get("files", []) if not f.get("locked") and self.kind(f) is not None]
+        total = sum(f.get("size") or 0 for f in kept)
+        skipped = len(m.get("files", [])) - len(kept)
         lines = [SYNC_START, "## Canvas sync", "",
                  f"- Last synced: {m['collected_at'][:10]} with `tue-course-setup` ([snapshot]({md_link_path(rel(self.snap, self.course))}/README.md))"]
         if run:
             lines.append(f"- Course run: {run}")
-        lines += [f"- Captured: {len(m.get('modules', []))} modules, {len(m.get('files', []))} files ({fmt_size(total)}), "
+        lines += [f"- Captured: {len(m.get('modules', []))} modules, {len(kept)} files ({fmt_size(total)}{f'; {skipped} skipped or locked' if skipped else ''}), "
                   f"{len(m.get('pages', []))} pages, {len(m.get('assignments', []))} assignments, {len(m.get('announcements', []))} announcements",
                   f"- Not downloaded: {self.not_downloadable} items (locked, video, or external; see the snapshot's module list)",
                   "",
