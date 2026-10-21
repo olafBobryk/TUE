@@ -10,6 +10,7 @@ Without --move it only checks and prints the plan. See references/course-layout.
 
 import argparse
 import datetime as dt
+import filecmp
 import html
 import json
 import os
@@ -236,7 +237,7 @@ class Organizer:
         self.filed = {}  # file id -> Path (this run and earlier runs)
         for fid, rec in self.index.items():
             self.filed[int(fid)] = self.course / rec["path"]
-        self.report = {"filed": [], "already": [], "updated": [], "conflicts": [], "missing": [], "size_mismatch": [], "locked": [], "skipped": []}
+        self.report = {"filed": [], "already": [], "updated": [], "conflicts": [], "missing": [], "size_mismatch": [], "locked": [], "skipped": [], "adopted": []}
 
     def find_manifest(self):
         found = [p for p in self.downloads.glob(f"{self.code}__manifest*.json")]
@@ -279,9 +280,28 @@ class Organizer:
             if dest.exists() or dest in planned:
                 dest = with_suffix_tag(dest, f"F{f['id']}")
             return dest, "updated"
-        if dest.exists() or dest in planned:
+        tracked = {p.resolve() for p in self.filed.values()}
+        if dest in planned or (dest.exists() and dest.resolve() in tracked):
             return with_suffix_tag(dest, f"F{f['id']}"), "conflict"
+        if dest.exists():
+            # Filed earlier by hand or another tool, and different from Canvas's copy.
+            dest = with_suffix_tag(dest, "updated " + dt.date.today().isoformat())
+            return dest, "updated"
         return dest, "new"
+
+    def untracked_copy(self, f):
+        """A file filed earlier without this tool, at the place this one would go."""
+        dest = self.materials / self.kind(f) / safe_name(f["display_name"])
+        tracked = {p.resolve() for p in self.filed.values()}
+        return dest if dest.exists() and dest.resolve() not in tracked else None
+
+    def adopt(self, f, path, src=None):
+        self.report["adopted"].append((f, path))
+        self.filed[f["id"]] = path
+        self.index[str(f["id"])] = {"path": rel(path, self.course), "size": f.get("size"),
+                                    "updated_at": f.get("updated_at"), "display_name": f["display_name"]}
+        if src is not None and self.move:
+            src.unlink()
 
     def file_all(self):
         planned = set()
@@ -302,11 +322,18 @@ class Organizer:
                     src.unlink()
                 continue
             src = self.find_download(f)
+            existing = self.untracked_copy(f)
             if src is None:
-                self.report["missing"].append(f)
+                if existing is not None and existing.stat().st_size == f.get("size"):
+                    self.adopt(f, existing)
+                else:
+                    self.report["missing"].append(f)
                 continue
             if f.get("size") is not None and src.stat().st_size != f["size"]:
                 self.report["size_mismatch"].append((f, src.stat().st_size))
+                continue
+            if existing is not None and filecmp.cmp(src, existing, shallow=False):
+                self.adopt(f, existing, src)
                 continue
             dest, state = self.destination(f, planned)
             planned.add(dest)
@@ -475,7 +502,7 @@ class Organizer:
                  f"- Pages: {len(m.get('pages', []))}",
                  f"- Assignments: {len(m.get('assignments', []))}",
                  f"- Announcements: {len(m.get('announcements', []))}",
-                 f"- Files filed this sync: {len(r['filed']) + len(r['updated']) + len(r['conflicts'])}; already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}",
+                 f"- Files filed this sync: {len(r['filed']) + len(r['updated']) + len(r['conflicts'])}; already present: {len(r['already']) + len(r['adopted'])}; skipped by mapping: {len(r['skipped'])}",
                  f"- Not downloadable (locked, video, or external tool): {self.not_downloadable}", ""]
         if r["filed"] or r["updated"] or r["conflicts"]:
             lines += ["## Files filed", ""]
@@ -601,6 +628,8 @@ document_role: course-index
             print(f"{verb} (changed on Canvas, old copy kept): {rel(dest, self.course)}")
         for f, dest in r["conflicts"]:
             print(f"{verb} (name taken, renamed): {rel(dest, self.course)}")
+        if r["adopted"]:
+            print(f"Already filed by hand, now tracked: {len(r['adopted'])}")
         print(f"Already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}; locked on Canvas: {len(r['locked'])}")
         for f, got in r["size_mismatch"]:
             print(f"SIZE MISMATCH (left in downloads): F{f['id']} {f['display_name']} expected {f.get('size')} got {got}")

@@ -77,5 +77,6 @@ Every sync replaces the block between `<!-- canvas-sync:start -->` and `<!-- can
 
 - Files already filed (same Canvas id, size, and update time in `files.json`) are skipped; `--print-known` lists their ids so the download script can skip them.
 - A file whose Canvas copy changed is filed next to the old one as `<name> (updated YYYY-MM-DD).<ext>`; the old copy stays.
-- A name that already exists for a different file gets ` (F<id>)` before the extension.
+- A file already in place from an earlier hand-made or other capture (same folder and name, and the same size, or identical bytes when a fresh download exists) is adopted into `files.json` instead of being copied again, so only new and changed files need downloading. A same-named untracked file with different contents is treated as an older version: the new one is filed as `<name> (updated YYYY-MM-DD).<ext>`.
+- A name that already belongs to another Canvas file gets ` (F<id>)` before the extension.
 - Each sync writes a new snapshot folder; a second sync on the same day gets a `-2` suffix.
