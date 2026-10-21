@@ -59,7 +59,7 @@ Since version 1.2.1, the school-supplied **two-column essay template is the defa
 - [Academic essay](assets/templates/academic-essay/main.tex): single-column article with an argument/discussion structure.
 - [IEEE report](assets/templates/ieee-report/main.tex): two-column technical report using the standard `IEEEtran` class.
 
-Download an Overleaf-ready ZIP from [release 1.3.0](https://github.com/olafBobryk/TUE/releases/tag/v1.3.0), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root. The school starter includes its attribution notice; the independently authored starters include the MIT license.
+Download an Overleaf-ready ZIP from [release 1.3.1](https://github.com/olafBobryk/TUE/releases/tag/v1.3.1), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root. The school starter includes its attribution notice; the independently authored starters include the MIT license.
 
 Copy the whole chosen template folder. All three use pdfLaTeX. The school starter keeps sections and bibliography inline in `main.tex`; its sample references are demonstrations, not evidence. The two independent alternatives have `sections/body.tex` and an empty `references.bib`. The school source is attributed in its [notice](assets/templates/tue-school-essay/NOTICE.md); the other starters are general alternatives, not official TU/e or publisher-approved templates. Use the current assignment’s own template when supplied.
 

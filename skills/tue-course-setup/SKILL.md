@@ -10,7 +10,7 @@ description: >-
   COURSE.md shows its Canvas context is stale or incomplete.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # TU/e Course Setup
