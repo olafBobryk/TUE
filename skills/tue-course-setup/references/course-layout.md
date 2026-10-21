@@ -48,11 +48,16 @@ The organizer reads a JSON mapping written by the agent after the student has se
     "2": "lectures",
     "3": "labs",
     "4": "essay"
+  },
+  "files": {
+    "7174820": "course-information",
+    "7174731": "lectures",
+    "7174723": null
   }
 }
 ```
 
-Keys are module numbers in Canvas order (`mi` in the manifest, starting at 1). `0` holds files found outside modules (page links, course files). Unmapped modules go to `other`. Folder names must be plain relative names without `/`.
+`modules` keys are module numbers in Canvas order (`mi` in the manifest, starting at 1); `0` holds files found outside modules (linked from pages, the syllabus, assignments, or announcements). `files` maps single file ids and wins over the module entry; `null` skips a file (decorative images, banners, staff photos). Unmapped files go to `other`. Folder names must be plain relative names without `/`.
 
 ## COURSE.md
 

@@ -206,7 +206,7 @@ class Organizer:
         self.filed = {}  # file id -> Path (this run and earlier runs)
         for fid, rec in self.index.items():
             self.filed[int(fid)] = self.course / rec["path"]
-        self.report = {"filed": [], "already": [], "updated": [], "conflicts": [], "missing": [], "size_mismatch": [], "locked": []}
+        self.report = {"filed": [], "already": [], "updated": [], "conflicts": [], "missing": [], "size_mismatch": [], "locked": [], "skipped": []}
 
     def find_manifest(self):
         found = [p for p in self.downloads.glob(f"{self.code}__manifest*.json")]
@@ -214,10 +214,17 @@ class Organizer:
             sys.exit(f"No {self.code}__manifest*.json in {self.downloads}")
         return max(found, key=lambda p: p.stat().st_mtime)
 
-    def kind(self, mi):
-        name = self.mapping.get("modules", {}).get(str(mi), "other")
+    def kind(self, f):
+        """Folder for a file: a per-file entry wins over its module's; null means skip."""
+        per_file = self.mapping.get("files", {})
+        if str(f["id"]) in per_file:
+            name = per_file[str(f["id"])]
+        else:
+            name = self.mapping.get("modules", {}).get(str(f["mi"]), "other")
+        if name is None:
+            return None
         if "/" in name or "\\" in name or name in ("", ".", ".."):
-            sys.exit(f"Invalid folder name for module {mi}: {name!r}")
+            sys.exit(f"Invalid folder name for file {f['id']}: {name!r}")
         return safe_name(name)
 
     def known(self, f):
@@ -234,7 +241,7 @@ class Organizer:
         return max(sized or hits, key=lambda p: p.stat().st_mtime)
 
     def destination(self, f, planned):
-        folder = self.materials / self.kind(f["mi"])
+        folder = self.materials / self.kind(f)
         dest = folder / safe_name(f["display_name"])
         previous = self.filed.get(f["id"])
         if previous is not None and previous.exists():
@@ -251,6 +258,12 @@ class Organizer:
         for f in self.manifest["files"]:
             if f.get("locked"):
                 self.report["locked"].append(f)
+                continue
+            if self.kind(f) is None:
+                self.report["skipped"].append(f)
+                src = self.find_download(f)
+                if src and self.move:
+                    src.unlink()
                 continue
             if self.known(f):
                 self.report["already"].append(f)
@@ -391,6 +404,24 @@ class Organizer:
                     not_downloadable += t == "ExternalTool"
                     out.append(f"- {t}: [{label}]({target})" if target else f"- {t}: {label}")
             out.append("")
+        if not m.get("modules"):
+            out += ["_This course has no modules; its content is linked from pages._", ""]
+        outside = [f for f in m.get("files", []) if f["mi"] == 0]
+        if outside:
+            out += ["## Files outside modules", ""]
+            for f in outside:
+                local = self.filed.get(f["id"])
+                name = f["display_name"]
+                if local is not None and local.exists():
+                    entry = f"[{name}]({md_link_path(rel(local, snap))})"
+                elif f.get("locked"):
+                    entry = f"{name} (locked on Canvas)"
+                elif self.kind(f) is None:
+                    entry = f"{name} (skipped)"
+                else:
+                    entry = f"{name} (not filed)"
+                out.append(f"- {entry} — from {f.get('source') or 'Canvas'}")
+            out.append("")
         self.write(snap / "modules.md", "\n".join(out))
         self.not_downloadable = not_downloadable + len(self.report["locked"])
 
@@ -407,12 +438,12 @@ class Organizer:
                  f"- Pages: {len(m.get('pages', []))}",
                  f"- Assignments: {len(m.get('assignments', []))}",
                  f"- Announcements: {len(m.get('announcements', []))}",
-                 f"- Files filed this sync: {len(r['filed']) + len(r['updated']) + len(r['conflicts'])}; already present: {len(r['already'])}",
+                 f"- Files filed this sync: {len(r['filed']) + len(r['updated']) + len(r['conflicts'])}; already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}",
                  f"- Not downloadable (locked, video, or external tool): {self.not_downloadable}", ""]
         if r["filed"] or r["updated"] or r["conflicts"]:
             lines += ["## Files filed", ""]
             for f, dest in r["filed"] + r["updated"] + r["conflicts"]:
-                lines.append(f"- [{f['display_name']}]({md_link_path(rel(dest, snap))}) — {fmt_size(f.get('size'))}, module {f['mi']:02d}")
+                lines.append(f"- [{f['display_name']}]({md_link_path(rel(dest, snap))}) — {fmt_size(f.get('size'))}, from {f.get('source') or 'module %02d' % f['mi']}")
             lines.append("")
         if m.get("errors"):
             lines += ["## Collection errors", ""] + [f"- {e}" for e in m["errors"]] + [""]
@@ -531,7 +562,7 @@ document_role: course-index
             print(f"{verb} (changed on Canvas, old copy kept): {rel(dest, self.course)}")
         for f, dest in r["conflicts"]:
             print(f"{verb} (name taken, renamed): {rel(dest, self.course)}")
-        print(f"Already present: {len(r['already'])}; locked on Canvas: {len(r['locked'])}")
+        print(f"Already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}; locked on Canvas: {len(r['locked'])}")
         for f, got in r["size_mismatch"]:
             print(f"SIZE MISMATCH (left in downloads): F{f['id']} {f['display_name']} expected {f.get('size')} got {got}")
         if r["missing"]:
@@ -544,13 +575,13 @@ def main():
     ap.add_argument("--course-dir", required=True, help="course folder, e.g. '~/Documents/TUe/Networks 2IRR20'")
     ap.add_argument("--mapping", required=True, help="module → folder JSON (see references/course-layout.md)")
     ap.add_argument("--move", action="store_true", help="file the downloads and write the snapshot (default: check only)")
-    ap.add_argument("--print-known", action="store_true", help="print ids already filed and unchanged, then exit")
+    ap.add_argument("--print-known", action="store_true", help="print ids not to download (already filed and unchanged, or skipped by the mapping), then exit")
     ap.add_argument("--allow-missing", action="store_true", help="with --move, proceed even if some downloads are missing")
     args = ap.parse_args()
 
     org = Organizer(args)
     if args.print_known:
-        print(json.dumps([f["id"] for f in org.manifest["files"] if org.known(f)]))
+        print(json.dumps([f["id"] for f in org.manifest["files"] if org.known(f) or org.kind(f) is None]))
         return
     if org.move:
         # Check first so a partial download never produces a half-filed course.
