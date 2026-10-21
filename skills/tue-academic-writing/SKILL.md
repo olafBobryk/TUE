@@ -8,7 +8,7 @@ description: >-
   also use for explicit TU/e writing requests. Respect grammar-only scope.
 license: MIT
 metadata:
-  version: "1.2.1"
+  version: "1.3.0"
 ---
 
 # TU/e Academic Writing
@@ -18,6 +18,12 @@ Draft, revise, or review academic writing with clear argumentation, readable str
 ## Required reading
 
 **Read [the complete writing guidance](references/writing-guidance.md) before drafting, revising, or reviewing.** Read it for every mode, including a targeted pass. The requested task determines which instructions to apply; do not use this entrypoint's overview as a substitute for the full guide.
+
+## Course context
+
+When the work belongs to a course folder (the working folder or a parent has a `COURSE.md`), read that `COURSE.md` and any `AGENTS.md` first. Use its sources and routing to find the assignment brief, rubric, and any required template, for example under `course-materials/` or in the latest Canvas snapshot's `assignments/`. Treat them as assignment requirements; when several candidates fit, ask which applies. Save drafts where the course routes them (such as `assignments/<slug>/`), never inside `course-materials/`.
+
+If its `## Canvas sync` section says the course context is stale, or the brief, rubric, or template the task needs is not on disk, tell the student before writing and offer to refresh it with `tue-course-setup` when that skill is available. Continue with what is supplied if they decline.
 
 ## LaTeX and Overleaf
 
