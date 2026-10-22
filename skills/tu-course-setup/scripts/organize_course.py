@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""File a Canvas download into a TU/e course folder.
+"""File a Canvas or Brightspace download into a university course folder.
 
 Reads the newest <CODE>__manifest*.json and the <CODE>__M..__F<id>__* files from
 the download folder, files them under course-materials/<kind>/, writes a dated
-Canvas snapshot, and creates or updates COURSE.md. Standard library only.
+course snapshot, and creates or updates COURSE.md. Standard library only.
 
 Without --move it only checks and prints the plan. See references/course-layout.md.
 """
@@ -21,8 +21,14 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-CANVAS = "https://canvas.tue.nl"
-SYNC_START, SYNC_END = "<!-- canvas-sync:start -->", "<!-- canvas-sync:end -->"
+SYNC_START, SYNC_END = "<!-- course-sync:start -->", "<!-- course-sync:end -->"
+OLD_SYNC = ("<!-- canvas-sync:start -->", "<!-- canvas-sync:end -->")  # blocks written before 1.1
+PLATFORMS = {"canvas": "Canvas", "brightspace": "Brightspace"}
+# host -> (institution, short name, slug); anything else falls back to the host name
+INSTITUTIONS = {
+    "canvas.tue.nl": ("Eindhoven University of Technology", "TU/e", "tue"),
+    "brightspace.tudelft.nl": ("Delft University of Technology", "TU Delft", "tud"),
+}
 README_START, README_END = "<!-- canvas-contents:start -->", "<!-- canvas-contents:end -->"
 PARTIAL = (".crdownload", ".part", ".download")
 VERIFIER = re.compile(r"([?&])verifier=[^&\"'\s<>\\]*&?")
@@ -68,7 +74,7 @@ def fmt_date(value):
 
 
 class Markdown(HTMLParser):
-    """Small, forgiving HTML→Markdown converter for Canvas rich text."""
+    """Small, forgiving HTML→Markdown converter for rich text from Canvas or Brightspace."""
 
     def __init__(self, link):
         super().__init__(convert_charrefs=True)
@@ -229,14 +235,23 @@ class Organizer:
         self.code = self.mapping["code"]
         self.move = args.move
         self.materials = self.course / "course-materials"
-        self.index_path = self.materials / "canvas-snapshots" / "files.json"
-        self.index = json.loads(self.index_path.read_text(encoding="utf-8")) if self.index_path.exists() else {}
         self.manifest_path = self.find_manifest()
         self.manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         self.course_id = self.manifest["course"]["id"]
-        self.filed = {}  # file id -> Path (this run and earlier runs)
+        self.platform = self.manifest.get("platform", "canvas")
+        self.label = PLATFORMS.get(self.platform, self.platform.title())
+        url = urlsplit(self.manifest["course"]["url"])
+        self.origin, self.host = f"{url.scheme}://{url.netloc}", url.netloc
+        inst = INSTITUTIONS.get(self.host, (self.host, self.host, slug(self.host)))
+        self.institution = self.mapping.get("institution") or inst[0]
+        self.short = self.mapping.get("institution_short") or inst[1]
+        self.inst_slug = self.mapping.get("institution_slug") or inst[2]
+        self.snapshots = f"{self.platform}-snapshots"
+        self.index_path = self.materials / self.snapshots / "files.json"
+        self.index = json.loads(self.index_path.read_text(encoding="utf-8")) if self.index_path.exists() else {}
+        self.filed = {}  # file id (as text) -> Path (this run and earlier runs)
         for fid, rec in self.index.items():
-            self.filed[int(fid)] = self.course / rec["path"]
+            self.filed[str(fid)] = self.course / rec["path"]
         self.report = {"filed": [], "already": [], "updated": [], "conflicts": [], "missing": [], "size_mismatch": [], "locked": [], "skipped": [], "adopted": []}
 
     def find_manifest(self):
@@ -274,7 +289,7 @@ class Organizer:
     def destination(self, f, planned):
         folder = self.materials / self.kind(f)
         dest = folder / safe_name(f["display_name"])
-        previous = self.filed.get(f["id"])
+        previous = self.filed.get(str(f["id"]))
         if previous is not None and previous.exists():
             dest = with_suffix_tag(dest, "updated " + dt.date.today().isoformat())
             if dest.exists() or dest in planned:
@@ -297,7 +312,7 @@ class Organizer:
 
     def adopt(self, f, path, src=None):
         self.report["adopted"].append((f, path))
-        self.filed[f["id"]] = path
+        self.filed[str(f["id"])] = path
         self.index[str(f["id"])] = {"path": rel(path, self.course), "size": f.get("size"),
                                     "updated_at": f.get("updated_at"), "display_name": f["display_name"]}
         if src is not None and self.move:
@@ -345,7 +360,7 @@ class Organizer:
                     dest.unlink()
                     sys.exit(f"Copy size mismatch for {src.name}; download kept.")
                 src.unlink()
-                self.filed[f["id"]] = dest
+                self.filed[str(f["id"])] = dest
                 self.index[str(f["id"])] = {"path": rel(dest, self.course), "size": f.get("size"),
                                             "updated_at": f.get("updated_at"), "display_name": f["display_name"]}
 
@@ -359,20 +374,20 @@ class Organizer:
             if parts.scheme in ("mailto", "tel") or href.startswith("#"):
                 return href
             path = parts.path
-            page = re.search(r"/courses/\d+/pages/([^/?#]+)", path)
+            page = re.search(r"/courses/\d+/pages/([^/?#]+)", path) if self.platform == "canvas" else None
             if page and getattr(self, "snap", None) is not None:
                 local = self.page_files.get(unquote(page.group(1)))
                 if local is not None:
                     return md_link_path(rel(self.snap / local, from_dir))
-            m = re.search(r"/courses/\d+/files/(\d+)", path)
+            m = re.search(r"/courses/\d+/files/(\d+)", path) if self.platform == "canvas" else None
             if m:
-                local = self.filed.get(int(m.group(1)))
+                local = self.filed.get(m.group(1))
                 if local is not None and local.exists():
                     return md_link_path(rel(local, from_dir))
                 # Canvas file links can carry access tokens (verifier=...); drop the query.
-                return f"{CANVAS}/courses/{self.course_id}/files/{m.group(1)}"
+                return f"{self.origin}/courses/{self.course_id}/files/{m.group(1)}"
             if not parts.scheme:
-                href = CANVAS + (href if href.startswith("/") else "/" + href)
+                href = self.origin + (href if href.startswith("/") else "/" + href)
             return href
         return link
 
@@ -384,7 +399,7 @@ class Organizer:
 
     def snapshot_dir(self):
         day = self.manifest["collected_at"][:10]
-        base = self.materials / "canvas-snapshots" / day
+        base = self.materials / self.snapshots / day
         snap, n = base, 2
         while snap.exists():
             snap = base.with_name(f"{day}-{n}")
@@ -406,7 +421,7 @@ class Organizer:
             unique[key] = unique.get(key, 0) + 1
             return base if unique[key] == 1 else f"{base}-{unique[key]}"
 
-        self.write(snap / "syllabus.md", f"# Syllabus — {title}\n\n" + (self.md(m.get("syllabus"), snap) if m.get("syllabus") else "_No syllabus text on Canvas._\n"))
+        self.write(snap / "syllabus.md", f"# Syllabus — {title}\n\n" + (self.md(m.get("syllabus"), snap) if m.get("syllabus") else f"_No syllabus text on {self.label}._\n"))
 
         page_links = {}
         for p in m.get("pages", []):
@@ -414,18 +429,18 @@ class Organizer:
         self.page_files = page_links
         for p in m.get("pages", []):
             name = page_links[p["url"]][len("pages/"):]
-            head = f"# {p['title']}\n\nCanvas: {p.get('html_url') or ''}  \nUpdated: {fmt_date(p.get('updated_at'))}\n\n"
+            head = f"# {p['title']}\n\n{self.label}: {p.get('html_url') or ''}  \nUpdated: {fmt_date(p.get('updated_at'))}\n\n"
             self.write(snap / "pages" / name, head + self.md(p.get("body"), snap / "pages"))
 
         assignment_links = {}
         for a in m.get("assignments", []):
             name = unique_name("assignments", slug(a["name"])) + ".md"
             assignment_links[a["id"]] = f"assignments/{name}"
-            lines = [f"# {a['name']}", "", f"Canvas: {a.get('html_url') or ''}  ",
+            lines = [f"# {a['name']}", "", f"{self.label}: {a.get('html_url') or ''}  ",
                      f"Due: {fmt_date(a.get('due_at'))} · Available from: {fmt_date(a.get('unlock_at'))} · Until: {fmt_date(a.get('lock_at'))}  ",
                      f"Points: {a.get('points_possible') if a.get('points_possible') is not None else '—'} · Submission: {', '.join(a.get('submission_types') or []) or '—'}", ""]
             body = self.md(a.get("description"), snap / "assignments")
-            lines.append(body if body.strip() else "_No description on Canvas._\n")
+            lines.append(body if body.strip() else f"_No description on {self.label}._\n")
             if a.get("rubric"):
                 lines += ["## Rubric", "", "| Criterion | Points | Ratings |", "| --- | --- | --- |"]
                 for c in a["rubric"]:
@@ -437,11 +452,11 @@ class Organizer:
 
         for a in m.get("announcements", []):
             name = unique_name("announcements", f"{fmt_date(a.get('posted_at'))}-{slug(a['title'], 60)}") + ".md"
-            head = f"# {a['title']}\n\nPosted: {fmt_date(a.get('posted_at'))} by {a.get('author') or 'unknown'}  \nCanvas: {a.get('html_url') or ''}\n\n"
+            head = f"# {a['title']}\n\nPosted: {fmt_date(a.get('posted_at'))} by {a.get('author') or 'unknown'}  \n{self.label}: {a.get('html_url') or ''}\n\n"
             self.write(snap / "announcements" / name, head + self.md(a.get("message"), snap / "announcements"))
 
-        files_by_id = {f["id"]: f for f in m.get("files", [])}
-        out = [f"# Modules — {title}", "", f"Captured {m['collected_at'][:10]}. Local links point to filed copies; other items link to Canvas.", ""]
+        files_by_id = {str(f["id"]): f for f in m.get("files", [])}
+        out = [f"# Modules — {title}", "", f"Captured {m['collected_at'][:10]}. Local links point to filed copies; other items link to {self.label}.", ""]
         not_downloadable = 0
         for mod in m.get("modules", []):
             out += [f"## {mod['mi']:02d} {mod['name']}", ""]
@@ -452,7 +467,7 @@ class Organizer:
                 continue
             for it in mod["items"]:
                 t, label = it.get("type"), it.get("title") or "untitled"
-                local = self.filed.get(it.get("content_id")) if t == "File" else None
+                local = self.filed.get(str(it.get("content_id"))) if t == "File" else None
                 if t == "SubHeader":
                     out.append(f"- **{label}**")
                 elif local is not None and local.exists():
@@ -463,8 +478,8 @@ class Organizer:
                     out.append(f"- Assignment: [{label}]({assignment_links[it['content_id']]})")
                 else:
                     target = it.get("external_url") or it.get("html_url") or ""
-                    if t == "File" and files_by_id.get(it.get("content_id"), {}).get("locked"):
-                        label += " (locked on Canvas)"
+                    if t == "File" and files_by_id.get(str(it.get("content_id")), {}).get("locked"):
+                        label += f" (locked on {self.label})"
                     not_downloadable += t == "ExternalTool"
                     out.append(f"- {t}: [{label}]({target})" if target else f"- {t}: {label}")
             out.append("")
@@ -474,27 +489,27 @@ class Organizer:
         if outside:
             out += ["## Files outside modules", ""]
             for f in outside:
-                local = self.filed.get(f["id"])
+                local = self.filed.get(str(f["id"]))
                 name = f["display_name"]
                 if local is not None and local.exists():
                     entry = f"[{name}]({md_link_path(rel(local, snap))})"
                 elif f.get("locked"):
-                    entry = f"{name} (locked on Canvas)"
+                    entry = f"{name} (locked on {self.label})"
                 elif self.kind(f) is None:
                     entry = f"{name} (skipped)"
                 else:
                     entry = f"{name} (not filed)"
-                out.append(f"- {entry} — from {f.get('source') or 'Canvas'}")
+                out.append(f"- {entry} — from {f.get('source') or self.label}")
             out.append("")
         self.write(snap / "modules.md", "\n".join(out))
         self.not_downloadable = not_downloadable + len(self.report["locked"])
 
         # Raw capture for later diffs, without download URLs or file access tokens.
         raw = json.dumps(self.manifest, indent=1, ensure_ascii=False)
-        self.write(snap / "canvas-manifest.json", VERIFIER.sub(r"\1", raw))
+        self.write(snap / f"{self.platform}-manifest.json", VERIFIER.sub(r"\1", raw))
 
         r = self.report
-        lines = [f"# Canvas snapshot {snap.name} — {title}", "",
+        lines = [f"# {self.label} snapshot {snap.name} — {title}", "",
                  f"Captured from {m['course']['url']} at {m['collected_at']} by tue-course-setup.", "",
                  "## Contents", "",
                  f"- [Modules](modules.md): {len(m.get('modules', []))}",
@@ -516,13 +531,13 @@ class Organizer:
     def write_index_files(self):
         self.write(self.index_path, json.dumps(self.index, indent=1, ensure_ascii=False, sort_keys=True))
         readme = self.materials / "README.md"
-        kinds = sorted(p.name for p in self.materials.iterdir() if p.is_dir() and p.name != "canvas-snapshots")
+        kinds = sorted(p.name for p in self.materials.iterdir() if p.is_dir() and p.name != self.snapshots)
         block = [README_START] + [f"- [`{k}/`]({md_link_path(k)}/)" for k in kinds]
-        block += [f"- [`canvas-snapshots/`](canvas-snapshots/) — latest: [{self.snap.name}]({md_link_path(rel(self.snap, self.materials))}/README.md)", README_END]
+        block += [f"- [`{self.snapshots}/`]({self.snapshots}/) — latest: [{self.snap.name}]({md_link_path(rel(self.snap, self.materials))}/README.md)", README_END]
         block = "\n".join(block)
         if not readme.exists():
             name = self.manifest["course"]["name"]
-            self.write(readme, f"# {name} course materials\n\nSource-faithful TU/e course materials downloaded from Canvas. Do not edit them.\n\n## Contents\n\n{block}\n")
+            self.write(readme, f"# {name} course materials\n\nSource-faithful course materials downloaded from {self.label}. Do not edit them.\n\n## Contents\n\n{block}\n")
         else:
             text = readme.read_text(encoding="utf-8")
             if README_START in text and README_END in text:
@@ -531,10 +546,16 @@ class Organizer:
             else:
                 print(f"note: {readme} is hand-written; left unchanged. Add new folders to it if needed.")
 
-        source = self.course / "external-sources" / "tue-canvas-course" / "SOURCE.md"
+        source = self.source_dir() / "SOURCE.md"
         if not source.exists():
             c = self.manifest["course"]
-            self.write(source, f"---\ntitle: {c['name']} Canvas course\nurl: {c['url']}\npublisher: Eindhoven University of Technology\nsource_type: official-course-platform\naccessed_on: {self.manifest['collected_at'][:10]}\n---\n\n# TU/e Canvas course\n\nAuthenticated course root. Expiring download URLs are intentionally omitted.\n\n## Local attachments\n\nTU/e downloads from this course belong under `../../course-materials/`.\n")
+            self.write(source, f"---\ntitle: {c['name']} {self.label} course\nurl: {c['url']}\npublisher: {self.institution}\nsource_type: official-course-platform\naccessed_on: {self.manifest['collected_at'][:10]}\n---\n\n# {self.short} {self.label} course\n\nAuthenticated course root. Expiring download URLs are intentionally omitted.\n\n## Local attachments\n\n{self.short} downloads from this course belong under `../../course-materials/`.\n")
+
+    def source_dir(self):
+        old = self.course / "external-sources" / "tue-canvas-course"
+        if self.platform == "canvas" and self.host == "canvas.tue.nl" and old.exists():
+            return old
+        return self.course / "external-sources" / f"{self.inst_slug}-{self.platform}-course"
 
     def sync_block(self):
         m, r = self.manifest, self.report
@@ -545,8 +566,8 @@ class Organizer:
         kept = [f for f in m.get("files", []) if not f.get("locked") and self.kind(f) is not None]
         total = sum(f.get("size") or 0 for f in kept)
         skipped = len(m.get("files", [])) - len(kept)
-        lines = [SYNC_START, "## Canvas sync", "",
-                 f"- Last synced: {m['collected_at'][:10]} with `tue-course-setup` ([snapshot]({md_link_path(rel(self.snap, self.course))}/README.md))"]
+        lines = [SYNC_START, "## Course sync", "",
+                 f"- Last synced: {m['collected_at'][:10]} with `tu-course-setup` from {self.label} ([snapshot]({md_link_path(rel(self.snap, self.course))}/README.md))"]
         if run:
             lines.append(f"- Course run: {run}")
         lines += [f"- Captured: {len(m.get('modules', []))} modules, {len(kept)} files ({fmt_size(total)}{f'; {skipped} skipped or locked' if skipped else ''}), "
@@ -555,7 +576,7 @@ class Organizer:
                   "",
                   "Agents: if this course is still running and the last sync is more than 14 days old, or a task needs course material "
                   "(a brief, rubric, slides, or template) that is not on disk, tell the student the course context may be out of date or "
-                  "incomplete and offer to refresh it with `tue-course-setup`. Do not refresh without their go-ahead.",
+                  "incomplete and offer to refresh it with `tu-course-setup`. Do not refresh without their go-ahead.",
                   SYNC_END]
         return "\n".join(lines)
 
@@ -564,8 +585,10 @@ class Organizer:
         block = self.sync_block()
         if path.exists():
             text = path.read_text(encoding="utf-8")
-            if SYNC_START in text and SYNC_END in text:
-                text = re.sub(re.escape(SYNC_START) + ".*?" + re.escape(SYNC_END), lambda _: block, text, flags=re.S)
+            for start, end in ((SYNC_START, SYNC_END), OLD_SYNC):
+                if start in text and end in text:
+                    text = re.sub(re.escape(start) + ".*?" + re.escape(end), lambda _: block, text, flags=re.S)
+                    break
             else:
                 lines = text.split("\n")
                 at = next((i for i, l in enumerate(lines) if l.startswith("# ")), None)
@@ -577,10 +600,11 @@ class Organizer:
         mp, c = self.mapping, self.manifest["course"]
         name = mp.get("course_name") or c["name"]
         year = mp.get("academic_year") or ""
+        source = rel(self.source_dir() / "SOURCE.md", self.course)
         self.write(path, f"""---
 course_name: {name}
 course_code: {self.code}
-institution: Eindhoven University of Technology
+institution: {self.institution}
 academic_year: {year}
 document_role: course-index
 ---
@@ -591,8 +615,8 @@ document_role: course-index
 
 ## Directory map
 
-- `course-materials/` — TU/e-provided course files and dated Canvas snapshots; see its [README](course-materials/README.md).
-- `external-sources/` — non-TU/e sources and source records.
+- `course-materials/` — {self.short}-provided course files and dated {self.label} snapshots; see its [README](course-materials/README.md).
+- `external-sources/` — non-{self.short} sources and source records.
 - `notes/` — authored notes.
 - `assignments/` — coursework and practical exercises.
 - `projects/` — substantial course projects.
@@ -602,21 +626,21 @@ document_role: course-index
 
 ## Agent rules
 
-- Treat `course-materials/` as immutable TU/e material.
-- Assignment briefs, rubrics, and required templates are under `course-materials/` and in the latest Canvas snapshot's `assignments/`; check them before writing coursework.
-- Do not infer the current Canvas teaching order from older public resources.
+- Treat `course-materials/` as immutable {self.short} material.
+- Assignment briefs, rubrics, and required templates are under `course-materials/` and in the latest {self.label} snapshot's `assignments/`; check them before writing coursework.
+- Do not infer the current {self.label} teaching order from older public resources.
 - Keep this file factual and organizational; do not add study progress.
 
 ## Upload routing
 
 - Route every new file before adding it to this course; never leave course content at the course root.
-- Official TU/e course material goes in `course-materials/<kind-or-topic>/` unchanged; external references go in `external-sources/<source-slug>/`.
+- Official {self.short} course material goes in `course-materials/<kind-or-topic>/` unchanged; external references go in `external-sources/<source-slug>/`.
 - Assignment work, project material, personal notes, exam preparation, and final hand-ins go respectively in `assignments/<slug>/`, `projects/<slug>/`, `notes/`, `exam-prep/`, and `submissions/` (create the destination only when needed).
 - If the source or purpose is not clear, ask before filing it.
 
 ## Sources
 
-- [TU/e Canvas course](external-sources/tue-canvas-course/SOURCE.md)
+- [{self.short} {self.label} course]({source})
 """)
 
     def print_plan(self):
@@ -625,12 +649,12 @@ document_role: course-index
         for f, dest in r["filed"]:
             print(f"{verb}: {rel(dest, self.course)}")
         for f, dest in r["updated"]:
-            print(f"{verb} (changed on Canvas, old copy kept): {rel(dest, self.course)}")
+            print(f"{verb} (changed on {self.label}, old copy kept): {rel(dest, self.course)}")
         for f, dest in r["conflicts"]:
             print(f"{verb} (name taken, renamed): {rel(dest, self.course)}")
         if r["adopted"]:
             print(f"Already filed by hand, now tracked: {len(r['adopted'])}")
-        print(f"Already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}; locked on Canvas: {len(r['locked'])}")
+        print(f"Already present: {len(r['already'])}; skipped by mapping: {len(r['skipped'])}; locked on {self.label}: {len(r['locked'])}")
         for f, got in r["size_mismatch"]:
             print(f"SIZE MISMATCH (left in downloads): F{f['id']} {f['display_name']} expected {f.get('size')} got {got}")
         if r["missing"]:

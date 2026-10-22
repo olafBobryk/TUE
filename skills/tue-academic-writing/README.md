@@ -1,6 +1,6 @@
 # TU/e Academic Writing
 
-An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.3.0** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
+An agent skill for drafting, revising, and reviewing English academic essays and reports. Version **1.3.1** carries over every writing-related instruction from the TU/e Language and Writing Center's 17-page *Academic Writing Reader*, including the lessons in its figures, examples, footnote, and resource recommendations.
 
 **Independent adaptation by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -9,14 +9,14 @@ An agent skill for drafting, revising, and reviewing English academic essays and
 Install with the [skills CLI](https://github.com/vercel-labs/skills), then choose your agent:
 
 ```sh
-npx skills add olafBobryk/TUE
+npx skills add olafBobryk/tu-skills
 ```
 
 To install just this skill, for Claude Code or Codex:
 
 ```sh
-npx skills add olafBobryk/TUE --skill tue-academic-writing --agent claude-code
-npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global
+npx skills add olafBobryk/tu-skills --skill tue-academic-writing --agent claude-code
+npx skills add olafBobryk/tu-skills --skill tue-academic-writing --agent codex --global
 ```
 
 The skill uses the portable `SKILL.md` format and has no executable helpers, API keys, or original-reader PDF dependency. Local LaTeX compilation requires a TeX compiler; the optional Overleaf workflow requires an authenticated project and an agent with browser control or a supported editing integration. The skill itself does not provide those tools. Codex display metadata is included; other compatible agents can use the core instructions.
@@ -50,7 +50,7 @@ The skill follows the requested mode and assignment constraints. It flags eviden
 
 ## Course folders
 
-Version 1.3.0 reads the nearest `COURSE.md` when the work belongs to a course folder, such as one created by the companion [`tue-course-setup`](../tue-course-setup/README.md) skill. It uses the course's routing to find the assignment brief, rubric, and any required template, saves drafts outside `course-materials/`, and tells you when the course's Canvas sync looks stale or the needed brief is missing.
+Version 1.3.1 reads the nearest `COURSE.md` when the work belongs to a course folder, such as one created by the companion [`tu-course-setup`](../tu-course-setup/README.md) skill. It uses the course's routing to find the assignment brief, rubric, and any required template, saves drafts outside `course-materials/`, and tells you when the course's Canvas sync looks stale or the needed brief is missing.
 
 ## LaTeX templates and Overleaf
 
@@ -60,7 +60,7 @@ Since version 1.2.1, the school-supplied **two-column essay template is the defa
 - [Academic essay](assets/templates/academic-essay/main.tex): single-column article with an argument/discussion structure.
 - [IEEE report](assets/templates/ieee-report/main.tex): two-column technical report using the standard `IEEEtran` class.
 
-Download an Overleaf-ready ZIP from [release 1.3.1](https://github.com/olafBobryk/TUE/releases/tag/v1.3.1), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root. The school starter includes its attribution notice; the independently authored starters include the MIT license.
+Download an Overleaf-ready ZIP from [release 1.4.0](https://github.com/olafBobryk/tu-skills/releases/tag/v1.4.0), then use Overleaf’s **New project → Existing project (.zip)**. Each ZIP contains one template with `main.tex` at its root. The school starter includes its attribution notice; the independently authored starters include the MIT license.
 
 Copy the whole chosen template folder. All three use pdfLaTeX. The school starter keeps sections and bibliography inline in `main.tex`; its sample references are demonstrations, not evidence. The two independent alternatives have `sections/body.tex` and an empty `references.bib`. The school source is attributed in its [notice](assets/templates/tue-school-essay/NOTICE.md); the other starters are general alternatives, not official TU/e or publisher-approved templates. Use the current assignment’s own template when supplied.
 
@@ -94,10 +94,10 @@ npx skills update
 To install or refresh just this skill globally for Codex:
 
 ```sh
-npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global --yes
+npx skills add olafBobryk/tu-skills --skill tue-academic-writing --agent codex --global --yes
 ```
 
-Both commands retrieve published repository content. Version `1.3.0` is recorded in the skill metadata; this revision lets the skill read a course folder's `COURSE.md` to find assignment briefs, rubrics, and required templates, and flag stale Canvas context. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
+Both commands retrieve published repository content. Version `1.3.1` is recorded in the skill metadata; this revision lets the skill read a course folder's `COURSE.md` to find assignment briefs, rubrics, and required templates, and flag stale Canvas context. The skill name remains `tue-academic-writing`, and the complete writing guidance is unchanged. A fresh or refreshed installation should include `references/writing-guidance.md` alongside `SKILL.md`; the human-facing coverage record is in `docs/source-coverage.md`.
 
 ## License
 

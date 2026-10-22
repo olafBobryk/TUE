@@ -1,0 +1,7 @@
+interface:
+  display_name: "TU Course Setup"
+  short_description: "Download and organize a Canvas or Brightspace course"
+  default_prompt: "Use $tu-course-setup to set up my university course in my course library."
+
+policy:
+  allow_implicit_invocation: true

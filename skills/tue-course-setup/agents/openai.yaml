@@ -1,7 +1,0 @@
-interface:
-  display_name: "TU/e Course Setup"
-  short_description: "Download and organize a TU/e Canvas course"
-  default_prompt: "Use $tue-course-setup to set up my Canvas course in my course library."
-
-policy:
-  allow_implicit_invocation: true
