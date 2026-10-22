@@ -12,9 +12,10 @@ Install with the [skills CLI](https://github.com/vercel-labs/skills), then choos
 npx skills add olafBobryk/TUE
 ```
 
-To install globally for Codex:
+To install just this skill, for Claude Code or Codex:
 
 ```sh
+npx skills add olafBobryk/TUE --skill tue-academic-writing --agent claude-code
 npx skills add olafBobryk/TUE --skill tue-academic-writing --agent codex --global
 ```
 
@@ -22,7 +23,7 @@ The skill uses the portable `SKILL.md` format and has no executable helpers, API
 
 ## Use
 
-In Codex, invoke `$tue-academic-writing` explicitly or let it be selected for relevant academic writing requests. Supply your assignment requirements, text or notes, and available evidence.
+In Claude Code, run `/tue-academic-writing` or ask for academic writing help; in Codex, invoke `$tue-academic-writing`. Either agent can also pick it for relevant requests on its own. Supply your assignment requirements, text or notes, and available evidence.
 
 Example requests:
 

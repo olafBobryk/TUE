@@ -22,6 +22,15 @@ An agent skill that turns a TU/e Canvas course into a local course folder and ke
 
 Run it again later to **refresh**: it adds only new or changed files, keeps the old copies, writes a new dated snapshot, and updates the sync record. The sync record tells later agents (including [`tue-academic-writing`](../tue-academic-writing/README.md)) to suggest a refresh when the course is still running and the last sync is more than 14 days old, or when material a task needs is not on disk.
 
+## Install
+
+```sh
+npx skills add olafBobryk/TUE --skill tue-course-setup --agent claude-code
+npx skills add olafBobryk/TUE --skill tue-course-setup --agent codex --global
+```
+
+Or in Claude Code: `/plugin marketplace add olafBobryk/TUE`, then `/plugin install tue-skills --marketplace olafBobryk/TUE`.
+
 ## Requirements
 
 - An agent with a browser tool that runs in your signed-in Canvas session (for example Claude in Chrome) and a shell with Python 3.
@@ -29,7 +38,8 @@ Run it again later to **refresh**: it adds only new or changed files, keeps the 
 
 ## Use
 
-- “Use $tue-course-setup to set up Signals and Systems.”
+- Claude Code: “Set up Signals and Systems from Canvas” or `/tue-course-setup`.
+- Codex: “Use $tue-course-setup to set up Signals and Systems.”
 - “Refresh my Networks course from Canvas.”
 
 The [course layout](references/course-layout.md) documents the folder structure, the module mapping, and the sync record. The [Canvas collection](references/canvas-collection.md) reference holds the browser scripts.

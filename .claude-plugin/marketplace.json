@@ -1,0 +1,23 @@
+{
+  "name": "tue-skills",
+  "description": "Agent skills for TU/e students: academic writing with LaTeX and Overleaf, and Canvas course setup.",
+  "owner": {
+    "name": "Olaf Bobryk"
+  },
+  "plugins": [
+    {
+      "name": "tue-skills",
+      "description": "TU/e academic writing (LaTeX templates, Overleaf workflow) and Canvas course setup that downloads and organizes a course folder.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/tue-academic-writing",
+        "./skills/tue-course-setup"
+      ],
+      "category": "education",
+      "homepage": "https://github.com/olafBobryk/TUE",
+      "license": "MIT",
+      "keywords": ["tue", "eindhoven", "canvas", "academic-writing", "latex", "overleaf"]
+    }
+  ]
+}

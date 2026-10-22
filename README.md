@@ -1,6 +1,6 @@
-# TU/e skills
+# TU/e agent skills for Claude Code and Codex
 
-Agent skills for students at Eindhoven University of Technology (TU/e). They use the portable `SKILL.md` format and work with Codex, Claude Code, and other compatible agents.
+Agent skills for students at Eindhoven University of Technology (TU/e): an academic writing assistant with LaTeX and Overleaf support, and a Canvas course setup that downloads and organizes a whole course. They use the portable `SKILL.md` format, so they work in **Claude Code** and **Codex** (both used with these skills) and in other agents that read `SKILL.md` skills.
 
 **Independent work by Olaf Bobryk. Not an official TU/e product and not affiliated with or endorsed by TU/e.**
 
@@ -13,19 +13,28 @@ The two work together: course setup puts each course's briefs, rubrics, and temp
 
 ## Install
 
-Install with the [skills CLI](https://github.com/vercel-labs/skills) and choose the skills and agents:
+**Claude Code** (plugin marketplace):
 
-```sh
-npx skills add olafBobryk/TUE
+```text
+/plugin marketplace add olafBobryk/TUE
+/plugin install tue-skills --marketplace olafBobryk/TUE
 ```
 
-Or install one skill globally for one agent, for example:
+**Claude Code or Codex** with the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```sh
-npx skills add olafBobryk/TUE --skill tue-course-setup --agent codex --global
+npx skills add olafBobryk/TUE --agent claude-code
+npx skills add olafBobryk/TUE --agent codex --global
 ```
 
-Update installed skills with `npx skills update`.
+Leave out `--agent` to choose interactively. Install a single skill with `--skill tue-course-setup` or `--skill tue-academic-writing`. Update later with `npx skills update`.
+
+## Use
+
+- Claude Code: ask in plain words, or run `/tue-academic-writing` or `/tue-course-setup`.
+- Codex: mention `$tue-academic-writing` or `$tue-course-setup`.
+
+Example: “Set up my Networks course from Canvas”, then “Review my essay draft against the assignment brief”.
 
 ## License
 
