@@ -36,6 +36,10 @@ Leave out `--agent` to choose interactively. Install a single skill with `--skil
 
 Example: “Set up my Networks course from Canvas”, then “Review my essay draft against the assignment brief”.
 
+## Contribute
+
+Issues, discussions, and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). The most useful thing right now is a [Brightspace test report](https://github.com/olafBobryk/tu-skills/issues/new?template=brightspace-test-report.yml), for example from a TU Delft student.
+
 ## License
 
 Original repository content: [MIT](LICENSE), copyright 2026 Olaf Bobryk. School-supplied material is excluded; see the [school template notice](skills/tue-academic-writing/assets/templates/tue-school-essay/NOTICE.md).

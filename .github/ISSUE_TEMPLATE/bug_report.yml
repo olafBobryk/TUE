@@ -1,0 +1,39 @@
+name: Bug report
+description: Something in tu-course-setup or tue-academic-writing did not work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. **Never paste passwords, cookies, access tokens, signed download links, or private course material.** Describe what you saw; remove names and links if in doubt.
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      options: [tu-course-setup, tue-academic-writing, Something else]
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options: [Claude Code, Codex, Other]
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: University and platform (if course setup)
+      placeholder: "TU/e Canvas, TU Delft Brightspace, ..."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Error text or the organizer's printed summary. Remove anything private.
+      render: text

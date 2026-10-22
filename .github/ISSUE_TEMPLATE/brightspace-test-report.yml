@@ -1,0 +1,39 @@
+name: Brightspace test report
+description: You tried the experimental Brightspace path (for example at TU Delft). Tell us what happened.
+labels: [brightspace, testing]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The Brightspace collector is **experimental**: it was written from D2L's API documentation and tested only against a mock. Every report, working or not, helps. **Never paste cookies, tokens, signed links, or course files.**
+  - type: input
+    id: site
+    attributes:
+      label: Brightspace site
+      placeholder: brightspace.tudelft.nl
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: How far did it get?
+      options:
+        - Everything worked (files filed, snapshot written)
+        - Collected, but some content was missing
+        - Collected, but downloads failed
+        - Stopped at login or "auth failed"
+        - Stopped at another step
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: The status the script reported, which step stopped, and what looked different from what the skill expected. Remove names, course titles, and links if you prefer.
+    validations:
+      required: true
+  - type: textarea
+    id: counts
+    attributes:
+      label: Counts (optional)
+      description: Modules, files, assignments and announcements the script reported versus what you see in Brightspace.
